@@ -89,7 +89,7 @@ void loop(){
 
    
     Serial.print("\n");
-    Serial.print((currentMillis)/1000)/60;
+    Serial.print(((currentMillis)/1000)/60)/60;
     Serial.print("\n");
     Serial.print("\t Soil 1 state:");
     Serial.print(moistState1);
