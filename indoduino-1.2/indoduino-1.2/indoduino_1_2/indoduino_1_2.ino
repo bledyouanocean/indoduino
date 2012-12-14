@@ -76,11 +76,14 @@ void loop(){
   // i call this the oven timer. when the lights have gone through
   // an 8 week cycle it will turn on an LED to let you know to start
   // looking for signs of a good harvest
-
-  
-  
-
-
+  if(currentMillis > interval * 112) {
+    digitalWrite(relayPin4, HIGH);
+    Serial.print(" DING! Fries are done!     ");
+    Serial.print("\n");
+    delay(1000);
+  }
+  else
+    digitalWrite(relayPin4, LOW);
 
 
   if (Serial.available() > 0) {
@@ -88,8 +91,12 @@ void loop(){
     inByte = Serial.read();
 
    
-    Serial.print("\n");
-    Serial.print(((currentMillis)/1000)/60)/60;
+    Serial.print("minutes: ");
+    if (currentMillis <= 3600000){
+    Serial.print(((currentMillis)/1000)/60)/60;}
+    else {
+      Serial.print("Hour:");
+      Serial.print((((currentMillis)/1000)/60)/60)/60;}
     Serial.print("\n");
     Serial.print("\t Soil 1 state:");
     Serial.print(moistState1);
@@ -100,7 +107,15 @@ void loop(){
 
     Serial.print(moistState2);
     Serial.print("\n");
-   
+
+
+
+
+
+
+
+
+
     pumpState1 = map(digitalRead(13), 0, 1, 0, 1);
     pumpState2 = map(digitalRead(12), 0, 1, 0, 1);
     lightState3 = map(digitalRead(11), 0, 1,0, 1);
@@ -130,16 +145,8 @@ Serial.print("\n");
     }
 
     Serial.print("\n");
-    
-      // i call this the oven timer. when the lights have gone through
-  // an 8 week cycle it will turn on an LED to let you know to start
-  // looking for signs of a good harvest
+    delay(432);
 
-if(currentMillis > interval * 112) {
-    digitalWrite(relayPin4, HIGH);
-    Serial.print(" DING! Fries are done!     ");}
-      else
-    digitalWrite(relayPin4, LOW);
 
 
   }
