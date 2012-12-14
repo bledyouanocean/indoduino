@@ -91,11 +91,14 @@ void loop(){
     inByte = Serial.read();
 
    
-    Serial.print("minutes: ");
+    
+    Serial.print("\n");
+    
     if (currentMillis <= 3600000){
+      Serial.print("\t Elapsed minutes: ");
     Serial.print(((currentMillis)/1000)/60)/60;}
     else {
-      Serial.print("Hour:");
+      Serial.print("\t Elapsed Hour:");
       Serial.print((((currentMillis)/1000)/60)/60)/60;}
     Serial.print("\n");
     Serial.print("\t Soil 1 state:");
