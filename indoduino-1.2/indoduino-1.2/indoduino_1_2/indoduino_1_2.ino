@@ -43,36 +43,36 @@ void setup() {
   digitalWrite(relayPin1, HIGH);
 
   establishContact();
-  
- 
+
+
 
 }
 void loop(){
-  
+
   float h = dht.readHumidity();
   float t = dht.readTemperature();
-  
-  
-  
-  if (h <= 63) {
+
+
+
+  if (h >= 65) {
     digitalWrite(fanPin, HIGH);
   }
-    else 
-    {
-      digitalWrite(fanPin, LOW);
-      
-    }
-    
-    if (t >= 78) {
-      digitalWrite(fanPin, HIGH);
-      digitalWrite(heaterRelay, LOW);
-    }
-    else if (t <= 68) {
-      digitalWrite(heaterRelay, HIGH);
-    }
-    
-    
-    
+  else 
+  {
+    digitalWrite(fanPin, LOW);
+
+  }
+
+  if (t >= 78) {
+    digitalWrite(fanPin, HIGH);
+    digitalWrite(heaterRelay, LOW);
+  }
+  else if (t <= 21) {
+    digitalWrite(heaterRelay, HIGH);
+  }
+
+
+
 
   // read the state of the moisture sensor value:
   moistState1 = analogRead(moistPin1);
@@ -96,7 +96,8 @@ void loop(){
     digitalWrite(relayPin2, HIGH);
   // from here on is the timer for the lights.
   // as you can see above i have a VERY high number
-  // as my time interval. that is because arduino counts time in milliseconds. that number is 12 hours worth of milliseconds and, of course, light.
+  // as my time interval. that is because arduino counts time in milliseconds. that number is 12 hours worth of milliseconds and, of co
+  rse, light.
     unsigned long currentMillis = millis();
 
   if(currentMillis - previousMillis > interval) {
@@ -127,21 +128,23 @@ void loop(){
   if (Serial.available() > 0) {
 
     inByte = Serial.read();
-  
-   
-    
+
+
+
     if (currentMillis <= 3600000){
       Serial.print("minutes: ");
-    Serial.print(((currentMillis)/1000)/60)/60;}
+      Serial.print(((currentMillis)/1000)/60)/60;
+    }
     else if (currentMillis >= 3600000){
       Serial.print("Hour: ");
-      Serial.print((((currentMillis)/1000)/60)/60)/60;}
-      else 
-      {
+      Serial.print((((currentMillis)/1000)/60)/60)/60;
+    }
+    else 
+    {
       Serial.print("day: ");
-    Serial.print(((((currentMillis)/1000)/60)/60)/60)/24;
-  }
-     
+      Serial.print(((((currentMillis)/1000)/60)/60)/60)/24;
+    }
+
     Serial.print("\n");
     Serial.print("\t Soil 1 state:");
     Serial.print(moistState1);
@@ -162,7 +165,7 @@ void loop(){
     Serial.print("\t temp: ");
     Serial.print(t);
     Serial.print("\n");
-  
+
 
 
 
@@ -180,7 +183,7 @@ void loop(){
     {
       Serial.print("\t pump 1 status: OFF");
     }
-Serial.print("\n");
+    Serial.print("\n");
 
     if(pumpState2 == 1){
       Serial.print("\t pump 2 status: ON");
@@ -188,9 +191,9 @@ Serial.print("\n");
     else if(pumpState2 == 0)
       Serial.print("\t pump 2 status: OFF");
 
-   Serial.print("\n");
-  
-   if(lightState3 == 1) {
+    Serial.print("\n");
+
+    if(lightState3 == 1) {
 
       Serial.print("\t light status: ON");
     }
@@ -203,7 +206,7 @@ Serial.print("\n");
 
 
   }
-  }
+}
 
 
 
@@ -213,4 +216,5 @@ void establishContact() {
     delay(300);
   }
 }
+
 
