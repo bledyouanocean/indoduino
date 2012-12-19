@@ -54,7 +54,7 @@ void loop(){
 
 
 
-  if (h >= 65) {
+  if (h >= 57) {
     digitalWrite(fanPin, HIGH);
   }
   else 
@@ -96,8 +96,9 @@ void loop(){
     digitalWrite(relayPin2, HIGH);
   // from here on is the timer for the lights.
   // as you can see above i have a VERY high number
-  // as my time interval. that is because arduino counts time in milliseconds. that number is 12 hours worth of milliseconds and, of co
-  rse, light.
+  // as my time interval. that is because arduino 
+  // counts time in milliseconds. 
+  // that number is 12 hours worth of milliseconds and, of corse, light.
     unsigned long currentMillis = millis();
 
   if(currentMillis - previousMillis > interval) {
@@ -114,11 +115,11 @@ void loop(){
 
   // i call this the oven timer. when the lights have gone through
   // an 8 week cycle it will turn on an LED to let you know to start
-  // looking for signs of a good harvest
+  // looking for signs of a good harvest.
   if(currentMillis > interval * 112) {
     digitalWrite(relayPin4, HIGH);
     Serial.print(" DING! Fries are done!     ");
-    Serial.print("\n");
+    Serial.print("\n");    //should occurr on the 56th day.
     delay(1000);
   }
   else
