@@ -15,7 +15,8 @@ const int relayPin2 = 12;     // watering spike pump relay pin
 const int relayPin3 =  13;      // second watering pump relay pin
 const int relayPin4 = 7;       // Timer LED.
 const int fanPin = 6;
-const int heaterRelay = 5;
+const int heaterRelay = 8;
+const int deHum = 4;
 int inByte = 0;
 int lightState = HIGH;
 int moistState1 = 0;
@@ -56,12 +57,14 @@ void loop(){
 
   if (h >= 57) {
     digitalWrite(fanPin, HIGH);
+    digitalWrite(deHum, HIGH);
+  } 
+  else {
+    digitalWrite(deHum, LOW);
   }
-  else 
-  {
-    digitalWrite(fanPin, LOW);
+  
 
-  }
+  
 
   if (t >= 78) {
     digitalWrite(fanPin, HIGH);
@@ -69,6 +72,14 @@ void loop(){
   }
   else if (t <= 21) {
     digitalWrite(heaterRelay, HIGH);
+    digitalWrite(fanPin, LOW);
+    
+    
+  }
+  else {
+  digitalWrite(fanPin, LOW);
+  digitalWrite(heaterRelay, LOW);
+  digitalWrite(deHum, LOW);
   }
 
 
