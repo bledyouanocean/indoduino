@@ -1,9 +1,21 @@
+#include "DHT.h"
+
+#define DHTPIN 2
+
+#define DHTTYPE DHT11
+
+DHT dht(DHTPIN, DHTTYPE);
+
+
+
 const int moistPin1 = A0;     // moisture sensor pin
 const int moistPin2 = A1;     // sencond moisture sensor pin
 const int relayPin1 = 11;     // light relay pin
 const int relayPin2 = 12;     // watering spike pump relay pin
 const int relayPin3 =  13;      // second watering pump relay pin
 const int relayPin4 = 7;       // Timer LED.
+const int fanPin = 6;
+const int heaterRelay = 5;
 int inByte = 0;
 int lightState = HIGH;
 int moistState1 = 0;
@@ -31,10 +43,36 @@ void setup() {
   digitalWrite(relayPin1, HIGH);
 
   establishContact();
+  
+ 
 
 }
 void loop(){
-
+  
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  
+  
+  
+  if (h <= 63) {
+    digitalWrite(fanPin, HIGH);
+  }
+    else 
+    {
+      digitalWrite(fanPin, LOW);
+      
+    }
+    
+    if (t >= 78) {
+      digitalWrite(fanPin, HIGH);
+      digitalWrite(heaterRelay, LOW);
+    }
+    else if (t <= 68) {
+      digitalWrite(heaterRelay, HIGH);
+    }
+    
+    
+    
 
   // read the state of the moisture sensor value:
   moistState1 = analogRead(moistPin1);
@@ -89,14 +127,21 @@ void loop(){
   if (Serial.available() > 0) {
 
     inByte = Serial.read();
-
+  
    
-    Serial.print("minutes: ");
+    
     if (currentMillis <= 3600000){
+      Serial.print("minutes: ");
     Serial.print(((currentMillis)/1000)/60)/60;}
-    else {
-      Serial.print("Hour:");
+    else if (currentMillis >= 3600000){
+      Serial.print("Hour: ");
       Serial.print((((currentMillis)/1000)/60)/60)/60;}
+      else 
+      {
+      Serial.print("day: ");
+    Serial.print(((((currentMillis)/1000)/60)/60)/60)/24;
+  }
+     
     Serial.print("\n");
     Serial.print("\t Soil 1 state:");
     Serial.print(moistState1);
@@ -109,6 +154,15 @@ void loop(){
     Serial.print("\n");
 
 
+
+    Serial.print("\t humidity: ");
+    Serial.print(h);
+    Serial.print("%\t");
+    Serial.print("\n");
+    Serial.print("\t temp: ");
+    Serial.print(t);
+    Serial.print("\n");
+  
 
 
 
@@ -148,9 +202,10 @@ Serial.print("\n");
     delay(432);
 
 
-
   }
-}
+  }
+
+
 
 void establishContact() {
   while (Serial.available() <= 0) {
