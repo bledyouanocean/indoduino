@@ -12,7 +12,7 @@ const int moistPin1 = A0;     // moisture sensor pin
 const int moistPin2 = A1;     // sencond moisture sensor pin
 const int relayPin1 = 11;     // light relay pin
 const int relayPin2 = 12;     // watering spike pump relay pin
-const int relayPin3 =  9;      // second watering pump relay pin
+const int relayPin3 =  13;      // second watering pump relay pin
 const int relayPin4 = 7;       // Timer LED.
 const int fanPin = 6;
 const int heaterRelay = 8;
@@ -161,7 +161,7 @@ void loop(){
     Serial.print("\t Soil 1 state:");
     Serial.print(moistState1);
     Serial.print("\n");
-
+    Serial.println(analogRead(A0));
     Serial.print("\t Soil 2 state:");
 
 
@@ -185,7 +185,7 @@ void loop(){
 
 
 
-    pumpState1 = map(digitalRead(9), 0, 1, 0, 1);
+    pumpState1 = map(digitalRead(13), 0, 1, 0, 1);
     pumpState2 = map(digitalRead(12), 0, 1, 0, 1);
     lightState3 = map(digitalRead(11), 0, 1,0, 1);
     if(pumpState1 == 1){
@@ -212,19 +212,20 @@ void loop(){
     else {
       Serial.print("\t light status: OFF");
     }
-
+  
     Serial.print("\n");
-    delay(432);
+  
 
 
   }
+  
 }
 
 
 
 void establishContact() {
   while (Serial.available() <= 0) {
-    Serial.print('A');   // send a capital A
+    Serial.print("\n");   // send a capital A
     delay(300);
   }
 }
