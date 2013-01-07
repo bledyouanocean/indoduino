@@ -29,12 +29,9 @@ import processing.serial.*;
    
  }
  void draw () {
-   
-   
-   String temps = myPort.readStringUntil('T');
-   
-   
- text("tepurature/humidity: " + temps, 15, 30);
+  
+
+
  }
   
 
@@ -55,15 +52,21 @@ import processing.serial.*;
    myPort.write("'");
  // trim off any whitespace:
  inString = trim(inString);
- println();
+ 
  // convert to an int and map to the screen height:
- float inByte1 = float(inString); 
- inByte1 = map(inByte1, 0, 1023, 0, height);
+ float inByte = float(inString); 
+ inByte = map(inByte, 0, 1023, height, 0);
  
- // draw the line:
- stroke(127,34,255);
  
- line(xPos, height, xPos, height - inByte1);
+ 
+
+   stroke(255,0,0);
+   line(xPos, height, xPos, height - inByte);
+   
+   
+   
+ }
+ 
  
  
  // at the edge of the screen, go back to the beginning:
@@ -76,18 +79,11 @@ import processing.serial.*;
  // increment the horizontal position:
  xPos++;
  }
-
-
-
- 
-  float inByte2 = float(inString); 
- inByte2 = map(inByte2, 0, 1023, 0, height);
- 
- stroke(150,150,255);
- 
- line(yPos, height, yPos, height - inByte2);
- } 
- 
- 
-
  }
+
+
+ 
+ 
+ 
+
+
