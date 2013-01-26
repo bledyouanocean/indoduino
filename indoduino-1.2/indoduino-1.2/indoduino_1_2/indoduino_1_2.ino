@@ -66,7 +66,7 @@ void setup() {
   
   digitalWrite(heaterRelay, LOW);
 
-  establishContact();
+
 
     Wire.begin();
     RTC.begin();
@@ -247,9 +247,9 @@ Serial.print(now.year(), DEC);
     if (digitalRead(pumpPin1) == 1)
     
     Serial.print("\t Aquaponics pumps: ON");
-    
-    else if (digitalRead(pumpPin1) == 0);
+    else
     Serial.print("\t Aquaponics pumps: OFF");
+    
     Serial.println();
 
     Serial.print("\n");
@@ -351,11 +351,5 @@ Serial.print(now.year(), DEC);
 
 
 
-void establishContact() {
-  while (Serial.available() <= 0) {
-    Serial.println('A');   // send a capital A
-    delay(300);
-  }
-}
 
 
