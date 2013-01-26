@@ -12,32 +12,38 @@ DHT dht2(DHTPIN2, DHTTYPE);
 #include <Wire.h>
 #include "RTClib.h"
 
-RTC_Millis RTC;
 
+
+RTC_DS1307 RTC;
 
 const int moistPin1 = A0;     // moisture sensor pin
 const int moistPin2 = A1;     // sencond moisture sensor pin
 const int relayPin1 = 11;     // light relay pin
-const int relayPin2 = 12;     // watering spike pump relay pin
-const int relayPin3 =  9;      // second watering pump relay pin
-const int timerPin = 7;       // Timer LED.
-const int fanPin = 6;
+const int relayPin2 = 7;     //watering spike pumps
+const int relayPin3 =  6;     
+const int timerPin = 13;       // Timer LED.
+const int fanPin = 8;
 const int heaterRelay = 10;
-const int deHum = 4;
+const int pumpPin1 = 9; //aquaponics pumps
+const int pumpPin2 = 12; //aquaponics pumps
 int inByte = 0;
-int lightState = HIGH;
+int lightState = 0;
 int moistState1 = 0;
 int moistState2 = 0;
-int lightState3 = 0;      // variables for reading the moisture sensor, light, and pump statuses
+      // variables for reading the moisture sensor, light, and pump statuses
 int pumpState1 = 0;
 int pumpState2 = 0;
 int heatState = 0;
+int pumpTimer = LOW;
+int Hour = 0;
+int Minute = 0;
 
 long previousMillis = 0;
 
 
 
 long interval = 43200000;   // 12 hours
+
 void setup() {
   Serial.begin(57600);
   // initialize the relay pins as outputs:
@@ -48,19 +54,31 @@ void setup() {
   pinMode(heaterRelay, OUTPUT);
   // initialize the moisture sensors pins as inputs:
   pinMode(moistPin1, INPUT);
-  pinMode(moistPin2, INPUT); 
-  digitalWrite(relayPin1, HIGH);
+  pinMode(moistPin2, INPUT);
+ pinMode(fanPin, OUTPUT); 
+ pinMode(pumpPin1, OUTPUT);
+  pinMode(pumpPin2, OUTPUT);
+  
+  digitalWrite(relayPin2, LOW);
+  digitalWrite(relayPin3, LOW);
+  
+  
+  
   digitalWrite(heaterRelay, LOW);
 
   establishContact();
 
-
+    Wire.begin();
+    RTC.begin();
+    if (! RTC.isrunning()) {
+    Serial.println("RTC is NOT running!");
+  }
+   
  // following line sets the RTC to the date & time this sketch was compiled
-    RTC.adjust(DateTime(__DATE__, __TIME__));
+    
+  
 }
 void loop(){
-
-  
   
    DateTime now = RTC.now();
     
@@ -75,13 +93,13 @@ void loop(){
 
 
 
-  if (h1 >= 57) {
+  if (h1 >= 57) 
     digitalWrite(fanPin, HIGH);
-    digitalWrite(deHum, HIGH);
-  } 
-  else {
-    digitalWrite(deHum, LOW);
-  }
+    
+  
+  else 
+    digitalWrite(fanPin, LOW);
+  
   
 
   
@@ -121,6 +139,34 @@ void loop(){
 
   else
     digitalWrite(relayPin2, LOW);
+    
+    
+    
+    
+      Hour = now.hour();
+    Minute = now.minute();
+    
+    if (Hour == 8 && Minute < 15 || Hour == 16 && Minute > 15) 
+    {
+    
+    digitalWrite(pumpPin1, HIGH);
+    digitalWrite(pumpPin2, HIGH);
+    }
+   
+    else if (Hour == 0 && Minute < 20) {
+       digitalWrite(pumpPin1, HIGH);
+    digitalWrite(pumpPin2, HIGH);
+    }
+    
+    else 
+    {
+    
+    digitalWrite(pumpPin1, LOW);
+    digitalWrite(pumpPin2, LOW);
+    }
+    
+
+    
   // from here on is the timer for the lights.
   // as you can see above i have a VERY high number
   // as my time interval. that is because arduino 
@@ -139,15 +185,21 @@ void loop(){
     // set the light relay with the ledState of the variable:
     digitalWrite(relayPin1, lightState);
   }
+  
+  
+  
+ 
 
   // i call this the oven timer. when the lights have gone through
   // an 8 week cycle it will turn on an LED to let you know to start
   // looking for signs of a good harvest.
   if(currentMillis > interval * 112) {
     digitalWrite(timerPin, HIGH);
+    delay(100);
+    digitalWrite(timerPin, LOW);
     Serial.print(" DING! Fries are done!     ");
     Serial.print("\n");    //should occurr on the 56th day.
-    delay(10);
+    
   }
   else
     digitalWrite(timerPin, LOW);
@@ -157,6 +209,8 @@ void loop(){
     
 
     inByte = Serial.read();
+    
+    Serial.println();
 
 Serial.print(now.year(), DEC);
     Serial.print('/');
@@ -187,6 +241,16 @@ Serial.print(now.year(), DEC);
       Serial.print("day: ");
       Serial.print(((((currentMillis)/1000)/60)/60)/60)/24;
     }
+    
+    
+    Serial.print("\n");
+    if (digitalRead(pumpPin1) == 1)
+    
+    Serial.print("\t Aquaponics pumps: ON");
+    
+    else if (digitalRead(pumpPin1) == 0);
+    Serial.print("\t Aquaponics pumps: OFF");
+    Serial.println();
 
     Serial.print("\n");
     Serial.print("\t Soil 1 state:");
@@ -210,10 +274,10 @@ Serial.print(now.year(), DEC);
     Serial.print("%\t");
     Serial.print("\n");
     Serial.print("\t temp 1: ");
-    Serial.print(t1);
+    Serial.print((t1 * 1.8) + 32);
     Serial.print("\n");
     Serial.print("\t temp 2: ");
-    Serial.print(t2);
+    Serial.print((t2* 1.8) + 32);
     
     
 
@@ -232,36 +296,35 @@ Serial.print(now.year(), DEC);
       Serial.print("\t heater status: OFF");
       Serial.print("\n");
     }
-    pumpState1 = map(digitalRead(9), 0, 1, 0, 1);
-    pumpState2 = map(digitalRead(12), 0, 1, 0, 1);
-    lightState3 = map(digitalRead(11), 0, 1,0, 1);
-    if(pumpState1 == 1){
+    pumpState1 = map(digitalRead(6), 0, 1, 0, 1);
+    pumpState2 = map(digitalRead(7), 0, 1, 0, 1);
+    lightState = (digitalRead(relayPin1));
+    if(pumpState1 == 1)
       Serial.print("\t pump 1 status: ON");
-    }
+    
     else 
-    {
+    
       Serial.print("\t pump 1 status: OFF");
-    }
+    
     Serial.print("\n");
 
-    if(pumpState2 == 1){
+    if(pumpState2 == 1)
       Serial.print("\t pump 2 status: ON");
-    }
+    
     else if(pumpState2 == 0)
       Serial.print("\t pump 2 status: OFF");
 
-    Serial.print("\n");
-
-    if(lightState3 == 1) {
-
-      Serial.print("\t light status: ON");
-    }
-    else {
-      Serial.print("\t light status: OFF");
-      
-    }
+      Serial.print("\n");
     
-    Serial.print("\n");
+
+    if(lightState == 1) 
+    Serial.print("\t light status: OFF");
+    else 
+    Serial.print("\t light status: ON");
+      
+    
+    
+  /*  Serial.print("\n");
     Serial.println(analogRead(A0));
     
     Serial.println();
@@ -277,9 +340,10 @@ Serial.print(now.year(), DEC);
     Serial.println();
     Serial.println();
     
-    
+    */
     Serial.print("\n");
-    
+    Serial.println("----------------------------------------------------------------------");
+ 
 
 
   }
