@@ -22,8 +22,8 @@ const int relayPin1 = 11;     // light relay pin
 const int relayPin2 = 7;     //watering spike pumps
 const int relayPin3 =  6;     
 const int timerPin = 13;       // Timer LED.
-const int fanPin = 8;
-const int heaterRelay = 10;
+const int fanPin = 10;
+const int heaterRelay = 8;
 const int pumpPin1 = 9; //aquaponics pumps
 const int pumpPin2 = 12; //aquaponics pumps
 int inByte = 0;
@@ -37,6 +37,15 @@ int heatState = 0;
 int pumpTimer = LOW;
 int Hour = 0;
 int Minute = 0;
+int fanState = 0;
+int Temp = 0;
+int Read1 = 0;
+
+int Read2 = 0;
+
+int Read3 = 0;
+
+
 
 long previousMillis = 0;
 
@@ -80,8 +89,18 @@ void setup() {
 }
 void loop(){
   
+   
+  
    DateTime now = RTC.now();
-    
+   
+      Hour = now.hour();
+    Minute = now.minute();
+   
+   
+   if (Hour > 6 && Hour < 19)
+  digitalWrite(relayPin1, HIGH);
+else
+digitalWrite(relayPin1, LOW);
     
   
   
@@ -93,25 +112,21 @@ void loop(){
 
 
 
-  if (h1 >= 57) 
-    digitalWrite(fanPin, HIGH);
-    
-  
-  else 
-    digitalWrite(fanPin, LOW);
-  
-  
 
   
 
-   if (t1 <= 21.00) {
+   if (t1 < 20) {
     digitalWrite(heaterRelay, HIGH);
-    digitalWrite(fanPin, LOW);
+    
     
     
   }
- else if (t1 >= 21.00) {
+ else if (t1 > 24 || h1 > 54 && t1 > 21) {
     digitalWrite(fanPin, HIGH);
+    
+  }
+  else {
+  digitalWrite(fanPin, LOW);
     digitalWrite(heaterRelay, LOW);
   }
   
@@ -123,7 +138,7 @@ void loop(){
   moistState1 = analogRead(moistPin1);
   moistState2 = analogRead(moistPin2);
   // check if the sensors are high.
-  // if it is, the buttonState is HIGH:
+  
   if (moistState1 >= 500 )     
 
     digitalWrite(relayPin3, HIGH);
@@ -143,18 +158,12 @@ void loop(){
     
     
     
-      Hour = now.hour();
-    Minute = now.minute();
+     
     
-    if (Hour == 8 && Minute < 15 || Hour == 16 && Minute > 15) 
+    if (Minute < 15) 
     {
     
     digitalWrite(pumpPin1, HIGH);
-    digitalWrite(pumpPin2, HIGH);
-    }
-   
-    else if (Hour == 0 && Minute < 20) {
-       digitalWrite(pumpPin1, HIGH);
     digitalWrite(pumpPin2, HIGH);
     }
     
@@ -166,13 +175,14 @@ void loop(){
     }
     
 
-    
+   
   // from here on is the timer for the lights.
   // as you can see above i have a VERY high number
   // as my time interval. that is because arduino 
   // counts time in milliseconds. 
   // that number is 12 hours worth of milliseconds and, of corse, light.
     unsigned long currentMillis = millis();
+    /*
 
   if(currentMillis - previousMillis > interval) {
     previousMillis = currentMillis;
@@ -185,9 +195,9 @@ void loop(){
     // set the light relay with the ledState of the variable:
     digitalWrite(relayPin1, lightState);
   }
+ 
   
-  
-  
+  */
  
 
   // i call this the oven timer. when the lights have gone through
@@ -243,6 +253,9 @@ Serial.print(now.year(), DEC);
     }
     
     
+    
+    
+    
     Serial.print("\n");
     if (digitalRead(pumpPin1) == 1)
     
@@ -286,14 +299,14 @@ Serial.print(now.year(), DEC);
 
 
    Serial.print("\n");
-    heatState = (digitalRead(10));
-    if(heatState == HIGH) {
-      Serial.print("\t heater status: ON");
+    fanState = (digitalRead(10));
+    if(fanState == LOW) {
+      Serial.print("\t Fan status: OFF");
       Serial.print("\n");
     }
-    else if(heatState == LOW)
+    else if(heatState == HIGH)
     {
-      Serial.print("\t heater status: OFF");
+      Serial.print("\t Fan status: ON");
       Serial.print("\n");
     }
     pumpState1 = map(digitalRead(6), 0, 1, 0, 1);
@@ -315,32 +328,18 @@ Serial.print(now.year(), DEC);
       Serial.print("\t pump 2 status: OFF");
 
       Serial.print("\n");
-    
+      
+    lightState = (digitalRead(relayPin1));
 
     if(lightState == 1) 
-    Serial.print("\t light status: OFF");
-    else 
     Serial.print("\t light status: ON");
+    else 
+    Serial.print("\t light status: OFF");
       
     
     
-  /*  Serial.print("\n");
-    Serial.println(analogRead(A0));
-    
-    Serial.println();
-    Serial.println();
-    Serial.println();
-    Serial.println(analogRead(A1));
-    Serial.println();
-    Serial.println();
-    Serial.println();
-    Serial.println();
-    Serial.println();
-    Serial.println();
-    Serial.println();
-    Serial.println();
-    
-    */
+   
+
     Serial.print("\n");
     Serial.println("----------------------------------------------------------------------");
  
