@@ -112,16 +112,23 @@ digitalWrite(relayPin1, LOW);
 
 
 
+float  Read1 = dht1.readTemperature();
+delay(1000);
+float Read2 = dht1.readTemperature();
+delay(500);
+float Read3 = dht1.readTemperature();
+
+Temp = (Read1 + Read2 + Read3)/ 3;
 
   
 
-   if (t1 < 20) {
+   if (Temp < 20) {
     digitalWrite(heaterRelay, HIGH);
     
     
     
   }
- else if (t1 > 24 || h1 > 54 && t1 > 21) {
+ else if (Temp > 24 || h1 > 54 && Temp > 21) {
     digitalWrite(fanPin, HIGH);
     
   }
@@ -141,19 +148,19 @@ digitalWrite(relayPin1, LOW);
   
   if (moistState1 >= 500 )     
 
-    digitalWrite(relayPin3, HIGH);
-  else
     digitalWrite(relayPin3, LOW);
+  else
+    digitalWrite(relayPin3, HIGH);
 
 
 
   //repeat process above with second sensor.
   if (moistState2 >= 500)
 
-    digitalWrite(relayPin2, HIGH);
+    digitalWrite(relayPin2, LOW);
 
   else
-    digitalWrite(relayPin2, LOW);
+    digitalWrite(relayPin2, HIGH);
     
     
     
@@ -215,10 +222,10 @@ digitalWrite(relayPin1, LOW);
     digitalWrite(timerPin, LOW);
 
 
-  if (Serial.available() > 0) {
+ // if (Serial.available() > 0) {
     
 
-    inByte = Serial.read();
+   // inByte = Serial.read();
     
     Serial.println();
 
@@ -304,7 +311,7 @@ Serial.print(now.year(), DEC);
       Serial.print("\t Fan status: OFF");
       Serial.print("\n");
     }
-    else if(heatState == HIGH)
+    else if(fanState == HIGH)
     {
       Serial.print("\t Fan status: ON");
       Serial.print("\n");
@@ -312,7 +319,7 @@ Serial.print(now.year(), DEC);
     pumpState1 = map(digitalRead(6), 0, 1, 0, 1);
     pumpState2 = map(digitalRead(7), 0, 1, 0, 1);
     lightState = (digitalRead(relayPin1));
-    if(pumpState1 == 1)
+    if(pumpState1 == 0)
       Serial.print("\t pump 1 status: ON");
     
     else 
@@ -321,10 +328,10 @@ Serial.print(now.year(), DEC);
     
     Serial.print("\n");
 
-    if(pumpState2 == 1)
+    if(pumpState2 == 0)
       Serial.print("\t pump 2 status: ON");
     
-    else if(pumpState2 == 0)
+    else if(pumpState2 == 1)
       Serial.print("\t pump 2 status: OFF");
 
       Serial.print("\n");
@@ -346,7 +353,7 @@ Serial.print(now.year(), DEC);
 
 
   }
-}
+
 
 
 
