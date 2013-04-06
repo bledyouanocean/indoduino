@@ -13,7 +13,7 @@ void setup () {
 
   textFont(createFont("SanSerif", 8));
 
-  thisClient = new Client(this, "24.27.6.17", port);
+  thisClient = new Client(this, "173.174.93.185", port);
 
   background(0);
   frameRate(30); // Slow it down a little
@@ -28,7 +28,7 @@ void draw () {
   line(450, 250, 450, 200);
 
   // get the ASCII string:
- // if (thisClient != null) {
+  if (thisClient != null) {
    
    if (thisClient.available() > 0) {
       String inString = thisClient.readStringUntil('\n');
@@ -69,7 +69,7 @@ void draw () {
         stroke(100, 255, 50);
         rect(51, 51, 200, 124);
         
-     // }
+     }
     }
   }
 }
