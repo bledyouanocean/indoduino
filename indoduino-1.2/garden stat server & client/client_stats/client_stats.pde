@@ -1,4 +1,3 @@
-
 import processing.net.*;
 
 int port = 9998;
@@ -10,11 +9,11 @@ Client thisClient;
 
 void setup () {
   // set the window size:
-  size(800, 300); 
+  size(500, 300); 
 
   textFont(createFont("SanSerif", 8));
 
-  thisClient = new Client(this, "24.27.6.17", port);
+  thisClient = new Client(this, "173.174.93.185", port);
 
   background(0);
   frameRate(30); // Slow it down a little
@@ -24,19 +23,20 @@ void draw () {
 
   stroke(100, 255, 50);
   line(50, 250, 50, 200);
-  line(50, 200, 750, 200);
-  line(50, 250, 750, 250);
-  line(750, 250, 750, 200);
+  line(50, 200, 450, 200);
+  line(50, 250, 450, 250);
+  line(450, 250, 450, 200);
 
   // get the ASCII string:
   if (thisClient != null) {
-    if (thisClient.available() > 0) {
+   
+   if (thisClient.available() > 0) {
       String inString = thisClient.readStringUntil('\n');
       noFill();
       stroke(100, 255, 50);
-      rect(51, 51, 224, 124);
+      rect(51, 51, 200, 124);
       fill(255);
-      text(inString, 52, ypos * 7);
+      text(inString, 53, ypos * 7);
       ypos++;
     
   
@@ -55,7 +55,7 @@ void draw () {
       }
       line(xPos, 250, xPos, 200 + inByte);
       // at the edge of the screen, go back to the beginning:
-      if (xPos >= 749) {
+      if (xPos >= 400) {
         xPos = 51;
         background(0);
       } 
@@ -67,8 +67,9 @@ void draw () {
 
         fill(0);
         stroke(100, 255, 50);
-        rect(51, 51, 224, 124);
-      }
+        rect(51, 51, 200, 124);
+        
+     }
     }
   }
 }

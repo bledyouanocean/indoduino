@@ -82,10 +82,12 @@ void setup() {
     if (! RTC.isrunning()) {
     Serial.println("RTC is NOT running!");
   }
+  
+
    
  // following line sets the RTC to the date & time this sketch was compiled
     
-  
+  //RTC.adjust(DateTime(__DATE__, __TIME__));
 }
 void loop(){
   
@@ -289,7 +291,7 @@ Serial.print(now.year(), DEC);
     
   
     
-    Serial.println();
+
 
     Serial.print("\n");
     Serial.print("\t Soil 1 state:");
@@ -320,8 +322,15 @@ Serial.print(now.year(), DEC);
     Serial.print("\t temp 2: ");
     Serial.print((t2* 1.8) + 32);
     
-    
+     Serial.print("\n");
 
+int heatstate = digitalRead(heaterRelay);
+
+if(heatstate == LOW) 
+Serial.print("\t Heater status: OFF");
+
+else 
+ Serial.print("\t Heater status: ON");
 
 
 
@@ -357,7 +366,7 @@ Serial.print(now.year(), DEC);
     else if(pumpState2 == 1)
       Serial.print("\t pump 2 status: OFF");
 */
-      Serial.print("\n");
+     
       
     lightState = (digitalRead(relayPin1));
 
