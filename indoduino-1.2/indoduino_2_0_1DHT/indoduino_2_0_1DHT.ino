@@ -1,18 +1,24 @@
 #include "DHT.h"
 
 #define DHTPIN1 2
-#define DHTPIN2 3
+//#define DHTPIN2 3
 
 #define DHTTYPE DHT11
 
 DHT dht1(DHTPIN1, DHTTYPE);
 
-DHT dht2(DHTPIN2, DHTTYPE);
+//DHT dht2(DHTPIN2, DHTTYPE);
 
 #include <Wire.h>
 #include "RTClib.h"
 
+#include <NewPing.h>
 
+#define TRIGGER_PIN  5  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN     4  // Arduino pin tied to echo pin on the ultrasonic sensor.
+#define MAX_DISTANCE 200 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+
+NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
 
 RTC_DS1307 RTC;
 
@@ -30,6 +36,7 @@ int inByte = 0;
 int lightState = 0;
 int moistState1 = 0;
 int moistState2 = 0;
+int waterLevel =0;
       // variables for reading the moisture sensor, light, and pump statuses
 int pumpState1 = 0;
 int pumpState2 = 0;
@@ -37,13 +44,12 @@ int heatState = 0;
 int pumpTimer = LOW;
 int Hour = 0;
 int Minute = 0;
+int Second = 0;
 int fanState = 0;
 int Temp = 0;
-int Read1 = 0;
-
-int Read2 = 0;
-
-int Read3 = 0;
+int humid = 0;
+int Readt = 0;
+int Readh = 0;
 
 
 
@@ -68,13 +74,15 @@ void setup() {
  pinMode(pumpPin1, OUTPUT);
   pinMode(pumpPin2, OUTPUT);
   
-  digitalWrite(relayPin2, HIGH);
-  digitalWrite(relayPin3, HIGH);
+  // digitalWrite(relayPin2, HIGH);
+  // digitalWrite(relayPin3, HIGH);
   
   
   
-  digitalWrite(heaterRelay, HIGH);
-
+  //digitalWrite(heaterRelay, HIGH);
+ float t1 = dht1.readTemperature();
+    float h1 = dht1.readHumidity();
+    
 
 
     Wire.begin();
@@ -87,7 +95,7 @@ void setup() {
    
  // following line sets the RTC to the date & time this sketch was compiled
     
-  //RTC.adjust(DateTime(__DATE__, __TIME__));
+ // RTC.adjust(DateTime(__DATE__, __TIME__));
 }
 void loop(){
   
@@ -102,6 +110,14 @@ void loop(){
    
       Hour = now.hour();
     Minute = now.minute();
+    Second = now.second();
+    
+    
+   // float t1 = dht1.readTemperature();
+   // float h1 = dht1.readHumidity();
+    
+    if (Hour == 0 && Minute == 0 && now.second() == 0) 
+   checkWater();
    
    
    if (Hour > 6 && Hour < 19)
@@ -110,44 +126,37 @@ else
 digitalWrite(relayPin1, HIGH);
     
   
+ if (now.second() == 0 || now.second() == 30) { 
+ // float h1 = dht1.readHumidity();
+ // float t1 = dht1.readTemperature();
+ // float h2 = dht2.readHumidity();
+ // float t2 = dht2.readTemperature();
   
-  float h1 = dht1.readHumidity();
-  float t1 = dht1.readTemperature();
-  float h2 = dht2.readHumidity();
-  float t2 = dht2.readTemperature();
-  
-Read1 = dht1.readTemperature();
-delay(500);
-Read2 = dht1.readTemperature();
-delay(500);
-Read3 = dht1.readTemperature();
+Readt = dht1.readTemperature();
+Readh = dht1.readHumidity();
 
-Temp = (Read1 + Read2 + Read3)/3;
-
-
-
-
-  
-
+Temp = Readt;
+humid = Readh;
    if (Temp < 20) {
     digitalWrite(heaterRelay, LOW);
     
-    
+    digitalWrite(fanPin, HIGH);
     
   }
- else if (Temp > 26 || h1 > 54 && Temp > 21) {
+ else if (Temp > 26 || humid > 54 && Temp > 21) {
     digitalWrite(fanPin, LOW);
-    
+    digitalWrite(heaterRelay, HIGH);
   }
   else {
   digitalWrite(fanPin, HIGH);
     digitalWrite(heaterRelay, HIGH);
-  }
+    }
   
 
 
+ }
 
-
+delay(2000);
   // read the state of the moisture sensor value:
   moistState1 = analogRead(moistPin1);
   moistState2 = analogRead(moistPin2);
@@ -155,19 +164,19 @@ Temp = (Read1 + Read2 + Read3)/3;
   
   if (moistState1 >= 500 )     
 
-    digitalWrite(relayPin2, LOW);
+    digitalWrite(pumpPin1, LOW);
   else
-    digitalWrite(relayPin2, HIGH);
+    digitalWrite(pumpPin1, HIGH);
 
 
 
-  //repeat process above with second sensor.
- // if (moistState2 >= 500)
+  // repeat process above with second sensor.
+  if (moistState2 >= 500)
 
-  //  digitalWrite(relayPin2, LOW);
+    digitalWrite(pumpPin2, LOW);
 
-//  else
- //   digitalWrite(relayPin2, HIGH);
+  else
+    digitalWrite(pumpPin2, HIGH);
     
     
     
@@ -177,15 +186,15 @@ Temp = (Read1 + Read2 + Read3)/3;
     if (Minute < 15) 
     {
     
-    digitalWrite(pumpPin1, LOW);
-    digitalWrite(pumpPin2, LOW);
+    digitalWrite(relayPin2, LOW);
+   // digitalWrite(pumpPin2, LOW);
     }
     
     else 
     {
     
-    digitalWrite(pumpPin1, HIGH);
-    digitalWrite(pumpPin2, HIGH);
+    digitalWrite(relayPin2, HIGH);
+    //digitalWrite(pumpPin2, HIGH);
     }
     
 
@@ -229,7 +238,7 @@ Temp = (Read1 + Read2 + Read3)/3;
     digitalWrite(timerPin, LOW);
 
 
- // if (Serial.available() > 0) {
+  //if (Serial.available() > 0) {
     
 
    // inByte = Serial.read();
@@ -271,7 +280,7 @@ Serial.print(now.year(), DEC);
     
     
     Serial.print("\n");
-    if (digitalRead(pumpPin1) == 0)
+    if (digitalRead(relayPin2) == 0)
     
     Serial.print("\t Aquaponics pumps: ON");
     else
@@ -279,7 +288,7 @@ Serial.print(now.year(), DEC);
     Serial.print("\n");
     
     
-    if (moistState2 > 950) {
+  /*  if (moistState2 > 950) {
     Serial.println("\t Grow bed empty!");
     }
     else if (moistState2 < 950 && moistState2 > 350) {
@@ -290,37 +299,36 @@ Serial.print(now.year(), DEC);
     }
     
   
+    */
     
+    if (waterLevel > 50)
+    Serial.print("water is low!");
+    else
+    Serial.println();
 
 
     Serial.print("\n");
     Serial.print("\t Soil 1 state:");
     Serial.println(moistState1);
-    Serial.print("\n");
-/*
+   // Serial.print("\n");
     Serial.print("\t Soil 2 state:");
-
-
-    Serial.print(moistState2);
- */ 
-
-
-
-
+    Serial.println(moistState2);
+    Serial.println();
+   
 
     Serial.print("\t humidity 1: ");
-    Serial.print(h1);
+    Serial.print(humid);
     Serial.print("%\t");
     Serial.print("\n");
-    Serial.print("\t humidity 2: ");
-    Serial.print(h2);
-    Serial.print("%\t");
-    Serial.print("\n");
+   // Serial.print("\t humidity 2: ");
+  //  Serial.print(h2);
+  //  Serial.print("%\t");
+  //  Serial.print("\n");
     Serial.print("\t temp 1: ");
-    Serial.print((t1 * 1.8) + 32);
+    Serial.print((Temp * 1.8) + 32);
     Serial.print("\n");
-    Serial.print("\t temp 2: ");
-    Serial.print((t2* 1.8) + 32);
+    //Serial.print("\t temp 2: ");
+   // Serial.print((t2* 1.8) + 32);
     
      Serial.print("\n");
 
@@ -337,38 +345,40 @@ else
 
    Serial.print("\n");
     fanState = (digitalRead(10));
-    if(fanState == HIGH) {
-      Serial.print("\t Fan status: OFF");
-     
-      Serial.print("\n");
-    }
-    else if(fanState == LOW)
-    {
+    if(fanState == LOW) {
       Serial.print("\t Fan status: ON");
      
       Serial.print("\n");
     }
-    pumpState1 = digitalRead(relayPin2);
-   // pumpState2 = digitalRead(7);
+    else if(fanState == HIGH)
+    {
+      Serial.print("\t Fan status: OFF");
+     
+      Serial.print("\n");
+    }
+    pumpState1 = digitalRead(6);
+    pumpState2 = digitalRead(7);
     lightState = (digitalRead(relayPin1));
     if(pumpState1 == 0)
-      Serial.print("\t Soil pump status: ON");
+      Serial.print("\t Soil pump 1 status: ON");
     
     else 
     
-      Serial.print("\t Soil pump status: OFF");
+      Serial.print("\t Soil pump 1 status: OFF");
     
     Serial.print("\n");
-/*
+
     if(pumpState2 == 0)
-      Serial.print("\t pump 2 status: ON");
+      Serial.print("\t Soil pump 2 status: ON");
     
     else if(pumpState2 == 1)
-      Serial.print("\t pump 2 status: OFF");
-*/
+      Serial.print("\t Soil pump 2 status: OFF");
+      
+      Serial.println();
+
      
       
-    lightState = (digitalRead(relayPin1));
+   lightState = (digitalRead(relayPin1));
 
     if(lightState == 0) 
     Serial.print("\t light status: ON");
@@ -386,6 +396,13 @@ Serial.print(Temp);
 
 
 
+void checkWater() {
+  
+ 
+ unsigned int uS = sonar.ping();
+ 
+ waterLevel = (uS / US_ROUNDTRIP_CM);
+  }
 
 
 
