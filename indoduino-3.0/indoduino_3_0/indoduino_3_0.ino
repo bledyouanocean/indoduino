@@ -22,8 +22,8 @@ NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
 
 RTC_DS1307 RTC;
 
-const int moistPin1 = A0;     // moisture sensor pin
-const int moistPin2 = A1;     // sencond moisture sensor pin
+const int moistPin1 = A1;     // moisture sensor pin
+const int moistPin2 = A2;     // sencond moisture sensor pin
 const int relayPin1 = 12;     // light relay pin
 const int relayPin2 = 11;     //watering spike pumps
 const int relayPin3 =  8;     
