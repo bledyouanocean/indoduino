@@ -4,9 +4,11 @@ import processing.event.*;
 import processing.opengl.*; 
 
 import processing.net.*; 
+import ipcapture.*; 
 
 import java.util.HashMap; 
 import java.util.ArrayList; 
+import java.io.File; 
 import java.io.BufferedReader; 
 import java.io.PrintWriter; 
 import java.io.InputStream; 
@@ -17,7 +19,10 @@ public class client_stats extends PApplet {
 
 
 
-int port = 9998;
+
+IPCapture cam;
+
+int port = 9997;
 
 int xPos = 51;         // horizontal position of the graph
 int ypos = 8;
@@ -26,7 +31,10 @@ Client thisClient;
 
 public void setup () {
   // set the window size:
-  size(500, 300); 
+  size(800, 300); 
+  
+  cam = new IPCapture(this, "http://173.174.93.185:8081", "", "");
+  cam.start();
 
   textFont(createFont("SanSerif", 8));
 
@@ -43,12 +51,18 @@ public void draw () {
   line(50, 200, 450, 200);
   line(50, 250, 450, 250);
   line(450, 250, 450, 200);
+  
+    if (cam.isAvailable()) {
+    cam.read();
+    image(cam,455,25);
+    }
 
   // get the ASCII string:
   if (thisClient != null) {
    
    if (thisClient.available() > 0) {
       String inString = thisClient.readStringUntil('\n');
+      if (inString != null) {
       noFill();
       stroke(100, 255, 50);
       rect(51, 51, 200, 124);
@@ -88,6 +102,16 @@ public void draw () {
         
      }
     }
+   }
+    else 
+    redraw();
+  }
+}
+
+public void keyPressed() {
+  if (key == ' ') {
+    if (cam.isAlive()) cam.stop();
+    else cam.start();
   }
 }
 

@@ -1,7 +1,9 @@
 #include "DHT.h"
 
-#define DHTPIN1 2
-//#define DHTPIN2 3
+
+
+//#define DHTPIN1 2
+#define DHTPIN1 3
 
 #define DHTTYPE DHT11
 
@@ -12,6 +14,7 @@ DHT dht1(DHTPIN1, DHTTYPE);
 #include <Wire.h>
 #include "RTClib.h"
 
+/* 
 #include <NewPing.h>
 
 #define TRIGGER_PIN  5  // Arduino pin tied to trigger pin on the ultrasonic sensor.
@@ -19,11 +22,13 @@ DHT dht1(DHTPIN1, DHTTYPE);
 #define MAX_DISTANCE 200 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
+*/
 
 RTC_DS1307 RTC;
 
-const int moistPin1 = A1;     // moisture sensor pin
-const int moistPin2 = A2;     // sencond moisture sensor pin
+
+const int moistPin1 = A0;     // moisture sensor pin
+const int moistPin2 = A1;     // sencond moisture sensor pin
 const int relayPin1 = 12;     // light relay pin
 const int relayPin2 = 11;     //watering spike pumps
 const int relayPin3 =  8;     
@@ -73,15 +78,12 @@ void setup() {
  pinMode(fanPin, OUTPUT); 
  pinMode(pumpPin1, OUTPUT);
   pinMode(pumpPin2, OUTPUT);
-  
-  // digitalWrite(relayPin2, HIGH);
-  // digitalWrite(relayPin3, HIGH);
-  
-  
+ 
+ 
   
   //digitalWrite(heaterRelay, HIGH);
- float t1 = dht1.readTemperature();
-    float h1 = dht1.readHumidity();
+// float t1 = dht1.readTemperature();
+  //+  float h1 = dht1.readHumidity();
     
 
 
@@ -89,50 +91,15 @@ void setup() {
     RTC.begin();
     if (! RTC.isrunning()) {
     Serial.println("RTC is NOT running!");
-  }
-  
-
-   
- // following line sets the RTC to the date & time this sketch was compiled
     
- // RTC.adjust(DateTime(__DATE__, __TIME__));
-}
-void loop(){
-  
- 
-
- 
-  
-  
-   
-  
-   DateTime now = RTC.now();
+      DateTime now = RTC.now();
    
       Hour = now.hour();
     Minute = now.minute();
     Second = now.second();
     
     
-   // float t1 = dht1.readTemperature();
-   // float h1 = dht1.readHumidity();
-    
-    if (Hour == 0 && Minute == 0 && now.second() == 0) 
-   checkWater();
-   
-   
-   if (Hour > 6 && Hour < 19)
-  digitalWrite(relayPin1, LOW);
-else
-digitalWrite(relayPin1, HIGH);
-    
-  
- if (now.second() == 0 || now.second() == 30) { 
- // float h1 = dht1.readHumidity();
- // float t1 = dht1.readTemperature();
- // float h2 = dht2.readHumidity();
- // float t2 = dht2.readTemperature();
-  
-Readt = dht1.readTemperature();
+   Readt = dht1.readTemperature();
 Readh = dht1.readHumidity();
 
 Temp = Readt;
@@ -151,12 +118,50 @@ humid = Readh;
   digitalWrite(fanPin, HIGH);
     digitalWrite(heaterRelay, HIGH);
     }
+    delay(1000);
+ 
+  }
   
 
+   
+ // following line sets the RTC to the date & time this sketch was compiled
+    
+ // RTC.adjust(DateTime(__DATE__, __TIME__));
+}
+void loop(){
+  
+ 
 
- }
+ 
+   DateTime now = RTC.now();
+   
+      Hour = now.hour();
+    Minute = now.minute();
+    Second = now.second();
+    
+  
+   
+  
+    
+   // float t1 = dht1.readTemperature();
+   // float h1 = dht1.readHumidity();
+    
+ //   if (Hour == 0 && Minute == 0 && now.second() == 0) 
+//   checkWater();
+   
+   
+   if (Hour > 6 && Hour < 19)
+  digitalWrite(relayPin1, LOW);
+else
+digitalWrite(relayPin1, HIGH);
+    
+  
 
-delay(2000);
+adjustTemp();
+
+ 
+
+delay(1000);
   // read the state of the moisture sensor value:
   moistState1 = analogRead(moistPin1);
   moistState2 = analogRead(moistPin2);
@@ -265,7 +270,7 @@ Serial.print(now.year(), DEC);
       Serial.print("minutes: ");
       Serial.print(((currentMillis)/1000)/60)/60;
     }
-    else if (currentMillis >= 3600000){
+    else if (currentMillis >= 3600000 && ((((currentMillis)/1000)/60)/60)/60 <= 24) {
       Serial.print("Hour: ");
       Serial.print((((currentMillis)/1000)/60)/60)/60;
     }
@@ -387,6 +392,12 @@ else
     
     
    Serial.print("\n");
+   
+   
+   
+   
+   
+  
    // Serial.println(analogRead(A0));
 Serial.print(Temp);
   
@@ -395,7 +406,7 @@ Serial.print(Temp);
   
 
 
-
+/*
 void checkWater() {
   
  
@@ -404,8 +415,35 @@ void checkWater() {
  waterLevel = (uS / US_ROUNDTRIP_CM);
   }
 
+*/
 
 
+void adjustTemp() {
+ 
+ if(Second == 1 || Second == 15 || Second == 30 || Second == 45) { 
+   Readt = dht1.readTemperature();
+Readh = dht1.readHumidity();
+
+Temp = Readt;
+humid = Readh;
+   if (Temp < 20) {
+    digitalWrite(heaterRelay, LOW);
+    
+    digitalWrite(fanPin, HIGH);
+    
+  }
+ else if (Temp > 26 || humid > 54 && Temp > 21) {
+    digitalWrite(fanPin, LOW);
+    digitalWrite(heaterRelay, HIGH);
+  }
+  else {
+  digitalWrite(fanPin, HIGH);
+    digitalWrite(heaterRelay, HIGH);
+    }
+    
+ 
+  }
+}
 
 
 
