@@ -14,12 +14,12 @@ void setup () {
   // set the window size:
   size(800, 300); 
   
-  cam = new IPCapture(this, "http://173.174.93.185:8081", "", "");
+  cam = new IPCapture(this, "http://173.174.79.172:8081", "", "");
   cam.start();
 
   textFont(createFont("SanSerif", 8));
 
-  thisClient = new Client(this, "173.174.93.185", port);
+  thisClient = new Client(this, "173.174.79.172", port);
 
   background(0);
   frameRate(30); // Slow it down a little
